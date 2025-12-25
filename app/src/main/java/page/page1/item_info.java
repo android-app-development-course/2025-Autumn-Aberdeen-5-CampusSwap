@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import static page.page1.LoginMainActivity.post_userid;
@@ -37,111 +38,128 @@ public class item_info extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.item_info);
+
         final DatabaseHelper dbtest = new DatabaseHelper(this);
         final Intent intent = getIntent();
+        final String itemId = intent.getStringExtra("id");
         final SQLiteDatabase db = dbtest.getWritableDatabase();
 
-        // 返回按钮
+        // 1. 初始化控件
         ImageView btnBack = (ImageView) findViewById(R.id.btn_back);
-        btnBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish(); // 关闭当前页面，返回上一页
-            }
-        });
+        ImageView image = (ImageView) findViewById(R.id.imageView);
+        TextView price = (TextView) findViewById(R.id.item_price);
+        TextView title = (TextView) findViewById(R.id.item_title);
+        TextView info = (TextView) findViewById(R.id.item_info);
+        TextView contact = (TextView) findViewById(R.id.contact);
+        ListView commentList = (ListView) findViewById(R.id.commentList);
+        Button submit = (Button) findViewById(R.id.submit);
+        Button btnBargain = (Button) findViewById(R.id.btn_bargain);
+        Button btnChat = (Button) findViewById(R.id.btn_chat);
 
-        ImageView image = (ImageView)findViewById(R.id.imageView);
-        TextView price = (TextView)findViewById(R.id.item_price);
-        TextView title = (TextView)findViewById(R.id.item_title);
-        TextView info = (TextView)findViewById(R.id.item_info);
-        TextView contact = (TextView)findViewById(R.id.contact);
+        // 返回按钮
+        if (btnBack != null) {
+            btnBack.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    finish();
+                }
+            });
+        }
 
-        Cursor cursor = db.query(TABLENAME,null,"id=?",new String[]{intent.getStringExtra("id")},null,null,null,null);
-        Log.i("商品的id是",intent.getStringExtra("id"));
-        if (cursor.moveToFirst()){
-            while (!cursor.isAfterLast()){
+        // 2. 加载商品详情 (修复图片加载崩溃)
+        if (itemId != null) {
+            Cursor cursor = db.query(TABLENAME, null, "id=?", new String[]{itemId}, null, null, null);
+            if (cursor != null && cursor.moveToFirst()) {
+                // 获取图片 (列索引6)
                 imagedata = cursor.getBlob(6);
-                imagebm = BitmapFactory.decodeByteArray(imagedata, 0, imagedata.length);
-                image.setImageBitmap(imagebm);
+                if (imagedata != null && imagedata.length > 0) {
+                    try {
+                        imagebm = BitmapFactory.decodeByteArray(imagedata, 0, imagedata.length);
+                        image.setImageBitmap(imagebm);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        image.setImageResource(android.R.drawable.ic_menu_report_image); // 解码失败显示报错图
+                    }
+                } else {
+                    image.setImageResource(android.R.drawable.ic_menu_gallery); // 无图片显示占位图
+                }
+
                 title.setText(cursor.getString(2));
-                // 价格显示加上人民币符号
                 price.setText("¥" + cursor.getString(5));
                 info.setText(cursor.getString(4));
-                contactInfo = cursor.getString(8);
+                contactInfo = (cursor.getColumnCount() > 8) ? cursor.getString(8) : "暂无联系方式";
                 contact.setText(contactInfo);
-                cursor.moveToNext();
+
+                cursor.close();
             }
         }
 
-        // 评论列表
-        ListView commentList = (ListView)findViewById(R.id.commentList);
-        Map<String, Object> item;
-        final List<Map<String, Object>> data = new ArrayList<Map<String, Object>>();
-        Cursor cursor_ = db.query("comments",null,"itemId=?",new String[]{intent.getStringExtra("id")},null,null,null,null);
-        if (cursor_.moveToFirst()){
-            while (!cursor_.isAfterLast()){
-                item = new HashMap<String, Object>();
-                item.put("userId",cursor_.getString(0));
-                item.put("comment",cursor_.getString(2));
-                item.put("time",cursor_.getString(3));
+        // 3. 加载评论列表
+        final List<Map<String, Object>> data = new ArrayList<>();
+        Cursor cursor_ = db.query("comments", null, "itemId=?", new String[]{itemId}, null, null, "time DESC");
+        if (cursor_ != null && cursor_.moveToFirst()) {
+            while (!cursor_.isAfterLast()) {
+                Map<String, Object> itemMap = new HashMap<>();
+                itemMap.put("userId", cursor_.getString(0));
+                itemMap.put("comment", cursor_.getString(2));
+                itemMap.put("time", cursor_.getString(3));
+                data.add(itemMap);
                 cursor_.moveToNext();
-                data.add(item);
             }
+            cursor_.close();
         }
-        SimpleAdapter simpleAdapter = new SimpleAdapter(this, data, R.layout.comment_item, new String[] { "userId", "comment", "time"},
-                new int[] { R.id.userId, R.id.commentInfo, R.id.time });
+
+        SimpleAdapter simpleAdapter = new SimpleAdapter(this, data, R.layout.comment_item,
+                new String[]{"userId", "comment", "time"},
+                new int[]{R.id.userId, R.id.commentInfo, R.id.time});
         commentList.setAdapter(simpleAdapter);
 
-        // 提交评论按钮
-        Button submit = (Button)findViewById(R.id.submit);
+        // 4. 提交评论逻辑
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (post_userid == null || post_userid.equals("")) {
+                if (post_userid == null || post_userid.isEmpty()) {
                     Toast.makeText(getApplicationContext(), "请先登录！", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                EditText comment = (EditText)findViewById(R.id.comment);
-                String submit_comment = comment.getText().toString();
+
+                EditText commentEdit = (EditText) findViewById(R.id.comment);
+                String submit_comment = commentEdit.getText().toString().trim();
+
                 if (submit_comment.isEmpty()) {
                     Toast.makeText(getApplicationContext(), "请输入评论内容", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                SimpleDateFormat formatter = new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss ");
-                Date curDate = new Date(System.currentTimeMillis());
-                String time = formatter.format(curDate);
-                ContentValues values=new ContentValues();
-                values.put("userId",post_userid);
-                values.put("itemId",intent.getStringExtra("id"));
-                values.put("comment",submit_comment);
-                values.put("time",time);
-                db.insert("comments",null,values);
-                Log.i("1","评论成功");
+
+                String time = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(new Date());
+
+                ContentValues values = new ContentValues();
+                values.put("userId", post_userid);
+                values.put("itemId", itemId);
+                values.put("comment", submit_comment);
+                values.put("time", time);
+
+                db.insert("comments", null, values);
                 Toast.makeText(getApplicationContext(), "评论成功", Toast.LENGTH_SHORT).show();
-                // 刷新页面
-                Intent intent_=new Intent(item_info.this,item_info.class);
-                intent_.putExtra("id",intent.getStringExtra("id"));
-                startActivity(intent_);
-                finish();
+
+                // 刷新页面数据
+                recreate();
             }
         });
 
-        // 议价按钮
-        Button btnBargain = (Button) findViewById(R.id.btn_bargain);
+        // 5. 议价与聊天按钮
         btnBargain.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), "议价功能开发中", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "议价功能正在开发中...", Toast.LENGTH_SHORT).show();
             }
         });
 
-        // 立即聊天按钮
-        Button btnChat = (Button) findViewById(R.id.btn_chat);
         btnChat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (contactInfo != null && !contactInfo.isEmpty()) {
-                    Toast.makeText(getApplicationContext(), "联系卖家: " + contactInfo, Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "卖家联系方式: " + contactInfo, Toast.LENGTH_LONG).show();
                 } else {
                     Toast.makeText(getApplicationContext(), "暂无卖家联系方式", Toast.LENGTH_SHORT).show();
                 }

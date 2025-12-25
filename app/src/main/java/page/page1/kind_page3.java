@@ -30,16 +30,16 @@ public class kind_page3 extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_kind_page3);
 
-        // 返回按钮
         ImageView btnBack = (ImageView) findViewById(R.id.btn_back);
-        btnBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
+        if(btnBack != null) {
+            btnBack.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    finish();
+                }
+            });
+        }
 
-        // 底部导航栏
         RadioButton btn1 = (RadioButton) findViewById(R.id.button_1);
         RadioButton btnMsg = (RadioButton) findViewById(R.id.button_msg);
         RadioButton btn3 = (RadioButton) findViewById(R.id.button_3);
@@ -77,29 +77,42 @@ public class kind_page3 extends AppCompatActivity {
             }
         });
 
-        // 商品列表
         DatabaseHelper dbtest = new DatabaseHelper(this);
         final SQLiteDatabase db = dbtest.getWritableDatabase();
         ListView listView = (ListView) findViewById(R.id.kind_list1);
-        Map<String, Object> item;
+
         final List<Map<String, Object>> data = new ArrayList<Map<String, Object>>();
+        // 查询电子产品
         Cursor cursor = db.query(TABLENAME, null, "kind=?", new String[]{"电子产品"}, null, null, null, null);
 
-        if (cursor.moveToFirst()) {
+        if (cursor != null && cursor.moveToFirst()) {
             while (!cursor.isAfterLast()) {
-                item = new HashMap<String, Object>();
+                Map<String, Object> item = new HashMap<String, Object>();
                 item.put("id", cursor.getInt(0));
                 item.put("userid", cursor.getString(1));
                 item.put("title", cursor.getString(2));
                 item.put("kind", cursor.getString(3));
                 item.put("info", cursor.getString(4));
                 item.put("price", cursor.getString(5));
+
+                // --- 修复开始 ---
                 imagedata = cursor.getBlob(6);
-                imagebm = BitmapFactory.decodeByteArray(imagedata, 0, imagedata.length);
-                item.put("image", imagebm);
-                cursor.moveToNext();
+                if (imagedata != null && imagedata.length > 0) {
+                    try {
+                        imagebm = BitmapFactory.decodeByteArray(imagedata, 0, imagedata.length);
+                        item.put("image", imagebm);
+                    } catch (Exception e) {
+                        item.put("image", null);
+                    }
+                } else {
+                    item.put("image", null);
+                }
+                // --- 修复结束 ---
+
                 data.add(item);
+                cursor.moveToNext();
             }
+            cursor.close();
         }
 
         SimpleAdapter simpleAdapter = new SimpleAdapter(this, data, R.layout.listitem,
@@ -109,19 +122,22 @@ public class kind_page3 extends AppCompatActivity {
         simpleAdapter.setViewBinder(new SimpleAdapter.ViewBinder() {
             @Override
             public boolean setViewValue(View view, Object data, String textRepresentation) {
-                if (view instanceof ImageView && data instanceof Bitmap) {
+                if (view instanceof ImageView) {
                     ImageView iv = (ImageView) view;
-                    iv.setImageBitmap((Bitmap) data);
-                    return true;
-                } else {
-                    return false;
+                    if (data instanceof Bitmap) {
+                        iv.setImageBitmap((Bitmap) data);
+                        return true;
+                    } else if (data == null) {
+                        iv.setImageResource(android.R.drawable.ic_menu_gallery);
+                        return true;
+                    }
                 }
+                return false;
             }
         });
 
         listView.setAdapter(simpleAdapter);
 
-        // 商品点击事件
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {

@@ -32,12 +32,14 @@ public class kind_page1 extends AppCompatActivity {
 
         // 返回按钮
         ImageView btnBack = (ImageView) findViewById(R.id.btn_back);
-        btnBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
+        if (btnBack != null) {
+            btnBack.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    finish();
+                }
+            });
+        }
 
         // 底部导航栏
         RadioButton btn1 = (RadioButton) findViewById(R.id.button_1);
@@ -81,25 +83,39 @@ public class kind_page1 extends AppCompatActivity {
         DatabaseHelper dbtest = new DatabaseHelper(this);
         final SQLiteDatabase db = dbtest.getWritableDatabase();
         ListView listView = (ListView) findViewById(R.id.kind_list1);
-        Map<String, Object> item;
+
         final List<Map<String, Object>> data = new ArrayList<Map<String, Object>>();
+        // 查询体育用品
         Cursor cursor = db.query(TABLENAME, null, "kind=?", new String[]{"体育用品"}, null, null, null, null);
 
-        if (cursor.moveToFirst()) {
+        if (cursor != null && cursor.moveToFirst()) {
             while (!cursor.isAfterLast()) {
-                item = new HashMap<String, Object>();
+                Map<String, Object> item = new HashMap<String, Object>();
                 item.put("id", cursor.getInt(0));
                 item.put("userid", cursor.getString(1));
                 item.put("title", cursor.getString(2));
                 item.put("kind", cursor.getString(3));
                 item.put("info", cursor.getString(4));
                 item.put("price", cursor.getString(5));
+
+                // --- 修复开始：安全获取图片 ---
                 imagedata = cursor.getBlob(6);
-                imagebm = BitmapFactory.decodeByteArray(imagedata, 0, imagedata.length);
-                item.put("image", imagebm);
-                cursor.moveToNext();
+                if (imagedata != null && imagedata.length > 0) {
+                    try {
+                        imagebm = BitmapFactory.decodeByteArray(imagedata, 0, imagedata.length);
+                        item.put("image", imagebm);
+                    } catch (Exception e) {
+                        item.put("image", null);
+                    }
+                } else {
+                    item.put("image", null);
+                }
+                // --- 修复结束 ---
+
                 data.add(item);
+                cursor.moveToNext();
             }
+            cursor.close(); // 记得关闭cursor
         }
 
         SimpleAdapter simpleAdapter = new SimpleAdapter(this, data, R.layout.listitem,
@@ -109,13 +125,18 @@ public class kind_page1 extends AppCompatActivity {
         simpleAdapter.setViewBinder(new SimpleAdapter.ViewBinder() {
             @Override
             public boolean setViewValue(View view, Object data, String textRepresentation) {
-                if (view instanceof ImageView && data instanceof Bitmap) {
+                if (view instanceof ImageView) {
                     ImageView iv = (ImageView) view;
-                    iv.setImageBitmap((Bitmap) data);
-                    return true;
-                } else {
-                    return false;
+                    if (data instanceof Bitmap) {
+                        iv.setImageBitmap((Bitmap) data);
+                        return true;
+                    } else if (data == null) {
+                        // 如果没有图片，显示默认图标
+                        iv.setImageResource(android.R.drawable.ic_menu_gallery);
+                        return true;
+                    }
                 }
+                return false;
             }
         });
 
