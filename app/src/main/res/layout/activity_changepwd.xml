@@ -5,122 +5,182 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="@color/background_gray"
     tools:context="page.page1.changepwdActivity">
-    <LinearLayout
 
+    <!-- 顶部导航栏 -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:background="#1E90FF"
-        android:orientation="horizontal"
-        android:gravity="center"
-        tools:layout_editor_absoluteY="0dp"
-        tools:layout_editor_absoluteX="8dp">
+        android:background="@color/colorPrimary"
+        android:gravity="center_vertical"
+        android:elevation="4dp">
+
+        <ImageView
+            android:id="@+id/btn_back"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:padding="12dp"
+            android:src="@android:drawable/ic_menu_revert"
+            android:background="?attr/selectableItemBackgroundBorderless"/>
 
         <TextView
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:gravity="center"
-            android:textColor="#ffffff"
+            android:textColor="@color/white"
             android:text="修改密码"
-            android:textSize="25dp"
-            android:textStyle="bold" />
+            android:textSize="18sp"
+            android:textStyle="bold"/>
+
+        <View
+            android:layout_width="50dp"
+            android:layout_height="50dp"/>
     </LinearLayout>
-    <LinearLayout
+
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:layout_marginTop="20dp"
-        android:padding="25dp">
+        android:fillViewport="true">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:orientation="horizontal">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="欢迎用户:  "
-                android:textSize="30dp"/>
-            <TextView
-                android:id="@+id/showuser"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+            <!-- 用户信息 -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="user"
-                android:textSize="25dp"/>
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:orientation="horizontal">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="旧密码: "
-                android:textSize="30dp"
-                />
-            <EditText
-                android:id="@+id/oldpwd"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:hint="请输入旧密码"
-                android:textSize="25dp"/>
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:orientation="horizontal">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:text="新密码: "
-                android:textSize="30dp"
-                />
-            <EditText
-                android:id="@+id/newpwd"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="-10dp"
-                android:hint="请输入新密码     "
-                android:textSize="25dp"/>
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:orientation="horizontal"
-            >
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="确认密码: "
-                android:textSize="30dp"
-                />
-            <EditText
-                android:id="@+id/newpwd1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:hint="请确认密码"
-                android:textSize="25dp"/>
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="24dp">
 
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="当前用户: "
+                    android:textSize="16sp"
+                    android:textColor="@color/text_secondary"/>
+
+                <TextView
+                    android:id="@+id/showuser"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="user"
+                    android:textSize="16sp"
+                    android:textColor="@color/colorPrimary"
+                    android:textStyle="bold"/>
+            </LinearLayout>
+
+            <!-- 修改密码卡片 -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp"
+                app:cardBackgroundColor="@color/white">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="24dp">
+
+                    <!-- 旧密码 -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="旧密码"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_primary"
+                        android:textStyle="bold"/>
+
+                    <EditText
+                        android:id="@+id/oldpwd"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:layout_marginTop="8dp"
+                        android:background="@drawable/edittext_background"
+                        android:paddingLeft="16dp"
+                        android:paddingRight="16dp"
+                        android:hint="请输入旧密码"
+                        android:textSize="15sp"
+                        android:textColorHint="@color/text_hint"
+                        android:inputType="textPassword"/>
+
+                    <!-- 新密码 -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="20dp"
+                        android:text="新密码"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_primary"
+                        android:textStyle="bold"/>
+
+                    <EditText
+                        android:id="@+id/newpwd"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:layout_marginTop="8dp"
+                        android:background="@drawable/edittext_background"
+                        android:paddingLeft="16dp"
+                        android:paddingRight="16dp"
+                        android:hint="请输入新密码"
+                        android:textSize="15sp"
+                        android:textColorHint="@color/text_hint"
+                        android:inputType="textPassword"/>
+
+                    <!-- 确认密码 -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="20dp"
+                        android:text="确认密码"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_primary"
+                        android:textStyle="bold"/>
+
+                    <EditText
+                        android:id="@+id/newpwd1"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:layout_marginTop="8dp"
+                        android:background="@drawable/edittext_background"
+                        android:paddingLeft="16dp"
+                        android:paddingRight="16dp"
+                        android:hint="请再次输入新密码"
+                        android:textSize="15sp"
+                        android:textColorHint="@color/text_hint"
+                        android:inputType="textPassword"/>
+
+                    <!-- 确认修改按钮 -->
+                    <Button
+                        android:id="@+id/change"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:layout_marginTop="32dp"
+                        android:background="@drawable/button_primary"
+                        android:text="确认修改"
+                        android:textColor="@color/white"
+                        android:textSize="16sp"
+                        android:textStyle="bold"/>
+
+                    <!-- 返回按钮 -->
+                    <Button
+                        android:id="@+id/back"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:layout_marginTop="12dp"
+                        android:background="@drawable/button_secondary"
+                        android:text="返 回"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="16sp"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
         </LinearLayout>
-
-        <Button
-            android:id="@+id/change"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="确认修改"
-            android:textSize="25dp"
-            />
-        <Button
-            android:id="@+id/back"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="返   回"
-            android:textSize="25dp"
-            />
-
-    </LinearLayout>
+    </ScrollView>
 </LinearLayout>

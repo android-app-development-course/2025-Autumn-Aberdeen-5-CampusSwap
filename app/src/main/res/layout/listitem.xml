@@ -1,69 +1,110 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="150dp"
-    android:padding="10dp">
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="2dp"
+    app:cardBackgroundColor="@color/white">
 
-    <ImageView
-        android:id="@+id/item_image"
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"/>
     <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:paddingLeft="20dp">
-        <TextView
-            android:id="@+id/title"
-            android:layout_width="match_parent"
-            android:layout_height="30dp"
-            android:textSize="25dp"
-            android:gravity="center_vertical"
-            android:textColor="#000000"
-            android:textStyle="bold"
-            android:text="一个九成新的篮球"
-            />
-        <TextView
-            android:id="@+id/kind"
-            android:layout_width="match_parent"
-            android:layout_height="25dp"
-            android:textSize="20dp"
-            android:textColor="#000000"
-            android:gravity="center_vertical"
-            android:textStyle="bold"
-            android:text="体育用品"
-            />
-        <TextView
-            android:id="@+id/info"
-            android:layout_width="match_parent"
-            android:layout_height="30dp"
-            android:textSize="15dp"
-            android:textColor="#000000"
-            android:gravity="center_vertical"
-            android:text="刚买没多久，希望转卖出去..."
-            />
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <TextView
-            android:id="@+id/price"
-            android:layout_width="match_parent"
-            android:layout_height="30dp"
-            android:textSize="23dp"
-            android:textColor="#ff0000"
-            android:gravity="center_vertical"
-            android:text="59"/>
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="30dp"
-                android:textSize="23dp"
-                android:textColor="#ff0000"
-                android:gravity="center_vertical"
-                android:text="元"/>
-        </LinearLayout>
+        android:layout_height="wrap_content"
+        android:padding="12dp">
 
+        <!-- 商品图片 -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            app:cardCornerRadius="6dp"
+            app:cardElevation="0dp">
+
+            <ImageView
+                android:id="@+id/item_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"/>
+        </androidx.cardview.widget.CardView>
+
+        <!-- 商品信息 -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginStart="12dp"
+            android:layout_marginLeft="12dp">
+
+            <!-- 商品标题 -->
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:textColor="@color/text_primary"
+                android:textStyle="bold"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:text="商品标题"/>
+
+            <!-- 分类标签 -->
+            <TextView
+                android:id="@+id/kind"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp"
+                android:textSize="11sp"
+                android:textColor="@color/colorPrimary"
+                android:background="@drawable/tag_background"
+                android:text="分类"/>
+
+            <!-- 商品描述 -->
+            <TextView
+                android:id="@+id/info"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:textSize="13sp"
+                android:textColor="@color/text_secondary"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:lineSpacingExtra="2dp"
+                android:text="商品描述信息..."/>
+
+            <!-- 价格 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp"
+                    android:textColor="@color/price_orange"
+                    android:text="¥"/>
+
+                <TextView
+                    android:id="@+id/price"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="2dp"
+                    android:layout_marginLeft="2dp"
+                    android:textSize="18sp"
+                    android:textColor="@color/price_orange"
+                    android:textStyle="bold"
+                    android:text="0"/>
+            </LinearLayout>
+
+        </LinearLayout>
     </LinearLayout>
-</LinearLayout>
+</androidx.cardview.widget.CardView>

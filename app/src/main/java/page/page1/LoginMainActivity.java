@@ -1,6 +1,6 @@
 package page.page1;
 
-import android.app.Activity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -17,7 +17,7 @@ import android.widget.Toast;
 import java.sql.SQLException;
 
 
-public class LoginMainActivity extends Activity {
+public class LoginMainActivity extends AppCompatActivity {
     private EditText User;
     private EditText Password;
     private Button button_login;

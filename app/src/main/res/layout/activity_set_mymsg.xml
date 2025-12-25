@@ -5,175 +5,230 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="@color/background_gray"
     tools:context="page.page1.setMymsgActivity">
-    <LinearLayout
 
+    <!-- 顶部导航栏 -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:background="#1E90FF"
-        android:orientation="horizontal"
-        android:layout_gravity="center"
-        tools:layout_editor_absoluteY="0dp"
-        tools:layout_editor_absoluteX="8dp">
+        android:background="@color/colorPrimary"
+        android:gravity="center_vertical"
+        android:elevation="4dp">
+
+        <ImageView
+            android:id="@+id/btn_back"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:padding="12dp"
+            android:src="@android:drawable/ic_menu_revert"
+            android:background="?attr/selectableItemBackgroundBorderless"/>
 
         <TextView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:gravity="center"
-            android:textColor="#ffffff"
-            android:text="个人信息"
-            android:textSize="25dp"
-            android:textStyle="bold" />
+            android:textColor="@color/white"
+            android:text="编辑个人信息"
+            android:textSize="18sp"
+            android:textStyle="bold"/>
+
+        <View
+            android:layout_width="50dp"
+            android:layout_height="50dp"/>
     </LinearLayout>
-    <LinearLayout
+
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="25dp">
+        android:fillViewport="true">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:orientation="horizontal"
-            >
-            <TextView
-                android:layout_width="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+            <!-- 用户账号显示 -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="用户账号:"
-                android:textSize="30dp"
-                />
-            <TextView
-                android:id="@+id/showUser"
-                android:layout_width="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="用户账号: "
+                    android:textSize="16sp"
+                    android:textColor="@color/text_secondary"/>
+
+                <TextView
+                    android:id="@+id/showUser"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="user"
+                    android:textSize="16sp"
+                    android:textColor="@color/colorPrimary"
+                    android:textStyle="bold"/>
+            </LinearLayout>
+
+            <!-- 编辑信息卡片 -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="user"
-                android:textSize="25dp" />
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp"
+                app:cardBackgroundColor="@color/white">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="24dp">
+
+                    <!-- 姓名 -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="姓名"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_primary"
+                        android:textStyle="bold"/>
+
+                    <EditText
+                        android:id="@+id/name"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:layout_marginTop="8dp"
+                        android:background="@drawable/edittext_background"
+                        android:paddingLeft="16dp"
+                        android:paddingRight="16dp"
+                        android:hint="请填写姓名"
+                        android:textSize="15sp"
+                        android:textColorHint="@color/text_hint"
+                        android:maxLines="1"/>
+
+                    <!-- 专业 -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="专业"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_primary"
+                        android:textStyle="bold"/>
+
+                    <EditText
+                        android:id="@+id/subject"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:layout_marginTop="8dp"
+                        android:background="@drawable/edittext_background"
+                        android:paddingLeft="16dp"
+                        android:paddingRight="16dp"
+                        android:hint="请填写专业"
+                        android:textSize="15sp"
+                        android:textColorHint="@color/text_hint"
+                        android:maxLines="1"/>
+
+                    <!-- 联系电话 -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="联系电话"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_primary"
+                        android:textStyle="bold"/>
+
+                    <EditText
+                        android:id="@+id/phone"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:layout_marginTop="8dp"
+                        android:background="@drawable/edittext_background"
+                        android:paddingLeft="16dp"
+                        android:paddingRight="16dp"
+                        android:hint="请填写电话"
+                        android:textSize="15sp"
+                        android:textColorHint="@color/text_hint"
+                        android:inputType="phone"
+                        android:maxLines="1"/>
+
+                    <!-- QQ号 -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="QQ号"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_primary"
+                        android:textStyle="bold"/>
+
+                    <EditText
+                        android:id="@+id/qq"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:layout_marginTop="8dp"
+                        android:background="@drawable/edittext_background"
+                        android:paddingLeft="16dp"
+                        android:paddingRight="16dp"
+                        android:hint="请填写QQ号"
+                        android:textSize="15sp"
+                        android:textColorHint="@color/text_hint"
+                        android:inputType="number"
+                        android:maxLines="1"/>
+
+                    <!-- 地址 -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="地址"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_primary"
+                        android:textStyle="bold"/>
+
+                    <EditText
+                        android:id="@+id/address"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:layout_marginTop="8dp"
+                        android:background="@drawable/edittext_background"
+                        android:paddingLeft="16dp"
+                        android:paddingRight="16dp"
+                        android:hint="请填写地址"
+                        android:textSize="15sp"
+                        android:textColorHint="@color/text_hint"
+                        android:maxLines="1"/>
+
+                    <!-- 保存按钮 -->
+                    <Button
+                        android:id="@+id/save"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:layout_marginTop="32dp"
+                        android:background="@drawable/button_primary"
+                        android:text="保存信息"
+                        android:textColor="@color/white"
+                        android:textSize="16sp"
+                        android:textStyle="bold"/>
+
+                    <!-- 返回按钮 -->
+                    <Button
+                        android:id="@+id/back"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:layout_marginTop="12dp"
+                        android:background="@drawable/button_secondary"
+                        android:text="返 回"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="16sp"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
         </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            >
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="用户姓名:"
-                android:textSize="30dp"
-                />
-            <EditText
-                android:id="@+id/name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:maxLines="1"
-                android:hint="请填写姓名"
-                android:textSize="25dp"
-                />
-
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            >
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="用户专业:"
-                android:textSize="30dp"
-                />
-            <EditText
-                android:id="@+id/subject"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:maxLines="1"
-                android:hint="请填写专业    "
-                android:textSize="25dp"
-                />
-
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            >
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="联系方式:"
-                android:textSize="30dp"
-                />
-            <EditText
-                android:id="@+id/phone"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:maxLines="1"
-                android:hint="请填写电话    "
-                android:textSize="25dp"
-                />
-
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            >
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="QQ号:"
-                android:textSize="30dp"
-                />
-            <EditText
-                android:id="@+id/qq"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:maxLines="1"
-                android:hint="请填写QQ号         "
-                android:textSize="25dp"
-                />
-
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            >
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="地址:"
-                android:textSize="30dp"
-                />
-            <EditText
-                android:id="@+id/address"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:maxLines="1"
-                android:hint="请填写地址"
-                android:textSize="25dp"
-                />
-
-        </LinearLayout>
-
-        <Button
-            android:id="@+id/save"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="保存用户信息"
-            android:textSize="30dp"
-            android:background="#FF9900"
-            android:textColor="#ffffff"
-            />
-        <Button
-            android:id="@+id/back"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="返   回"
-            android:textSize="30dp"
-            android:background="#66CCFF"
-            android:layout_marginTop="10dp"
-            />
-    </LinearLayout>
-
-
+    </ScrollView>
 </LinearLayout>

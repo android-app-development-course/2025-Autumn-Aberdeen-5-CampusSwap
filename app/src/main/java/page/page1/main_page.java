@@ -1,26 +1,20 @@
 package page.page1;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.BaseAdapter;
-import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,6 +27,7 @@ public class main_page extends AppCompatActivity implements View.OnClickListener
     Intent intent;
     byte[] imagedata;
     Bitmap imagebm;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,12 +35,12 @@ public class main_page extends AppCompatActivity implements View.OnClickListener
         DatabaseHelper database = new DatabaseHelper(this);
         final SQLiteDatabase db = database.getWritableDatabase();
         ListView listView = (ListView)findViewById(R.id.listView);
-        Map<String, Object> item;  // 列表项内容用Map存储
-        final List<Map<String, Object>> data = new ArrayList<Map<String, Object>>(); // 列表
-        Cursor cursor = db.query(TABLENAME,null,null,null,null,null,null,null); // 数据库查询
+        Map<String, Object> item;
+        final List<Map<String, Object>> data = new ArrayList<Map<String, Object>>();
+        Cursor cursor = db.query(TABLENAME,null,null,null,null,null,null,null);
         if (cursor.moveToFirst()){
             while (!cursor.isAfterLast()){
-                item = new HashMap<String, Object>();  // 为列表项赋值
+                item = new HashMap<String, Object>();
                 item.put("id",cursor.getInt(0));
                 item.put("userid",cursor.getString(1));
                 item.put("title",cursor.getString(2));
@@ -56,36 +51,10 @@ public class main_page extends AppCompatActivity implements View.OnClickListener
                 imagebm = BitmapFactory.decodeByteArray(imagedata, 0, imagedata.length);
                 item.put("image",imagebm);
                 cursor.moveToNext();
-                data.add(item); // 加入到列表中
+                data.add(item);
             }
         }
-        /*
-        item = new HashMap<String, Object>();
-        item.put("userid","ysh");
-        item.put("image", R.drawable.buy_item1);
-        item.put("title","一个九成新的篮球");
-        item.put("kind","体育用品");
-        item.put("info", "刚买没多久，希望转卖出去...");
-        item.put("price", "59元");
-        data.add(item);
-        item = new HashMap<String, Object>();
-        item.put("userid","xg");
-        item.put("image", R.drawable.buy_item2);
-        item.put("title","一个八成新的篮球");
-        item.put("kind","体育用品");
-        item.put("info", "刚买没多久，希望转卖出去...");
-        item.put("price", "59元");
-        data.add(item);
-        item = new HashMap<String, Object>();
-        item.put("userid","hdq");
-        item.put("image", R.drawable.buy_item3);
-        item.put("title","一个八成新的篮球");
-        item.put("kind","体育用品");
-        item.put("info", "刚买没多久，希望转卖出去...");
-        item.put("price", "59元");
-        data.add(item);
-        */
-        // 使用SimpleAdapter布局listview
+
         SimpleAdapter simpleAdapter = new SimpleAdapter(this, data, R.layout.listitem, new String[] { "image", "title", "kind", "info", "price" },
                 new int[] { R.id.item_image, R.id.title, R.id.kind, R.id.info, R.id.price });
         simpleAdapter.setViewBinder(new SimpleAdapter.ViewBinder() {
@@ -102,7 +71,20 @@ public class main_page extends AppCompatActivity implements View.OnClickListener
         });
         listView.setAdapter(simpleAdapter);
 
+        // 分类标签点击事件
+        TextView tabAll = (TextView) findViewById(R.id.tab_all);
+        TextView tabSports = (TextView) findViewById(R.id.tab_sports);
+        TextView tabLife = (TextView) findViewById(R.id.tab_life);
+        TextView tabDigital = (TextView) findViewById(R.id.tab_digital);
+        TextView tabStudy = (TextView) findViewById(R.id.tab_study);
 
+        tabAll.setOnClickListener(this);
+        tabSports.setOnClickListener(this);
+        tabLife.setOnClickListener(this);
+        tabDigital.setOnClickListener(this);
+        tabStudy.setOnClickListener(this);
+
+        // 保留旧的kind点击事件兼容性
         ImageView kind1 = (ImageView) findViewById(R.id.kind1);
         kind1.setOnClickListener(this);
         ImageView kind2 = (ImageView) findViewById(R.id.kind2);
@@ -111,55 +93,86 @@ public class main_page extends AppCompatActivity implements View.OnClickListener
         kind3.setOnClickListener(this);
         ImageView kind4 = (ImageView) findViewById(R.id.kind4);
         kind4.setOnClickListener(this);
-        // 为列表项设置监听器
+
+        // 商品列表点击事件
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 intent = new Intent(main_page.this, item_info.class);
-                intent.putExtra("id", data.get(position).get("id").toString()); // 获取该列表项的key为id的键值，即商品的id，将其储存在Bundle传递给打开的页面
+                intent.putExtra("id", data.get(position).get("id").toString());
                 startActivity(intent);
             }
         });
 
+        // 发布闲置浮动按钮
+        ImageView fabAdd = (ImageView) findViewById(R.id.fab_add);
+        fabAdd.setOnClickListener(this);
+
+        // 底部导航栏
         RadioButton btn1 = (RadioButton)findViewById(R.id.button_1);
-        RadioButton btn2 = (RadioButton)findViewById(R.id.button_2);
+        RadioButton btnMsg = (RadioButton)findViewById(R.id.button_msg);
         RadioButton btn3 = (RadioButton)findViewById(R.id.button_3);
+        RadioButton btnMore = (RadioButton)findViewById(R.id.button_more);
+
         btn1.setOnClickListener(this);
-        btn2.setOnClickListener(this);
+        btnMsg.setOnClickListener(this);
         btn3.setOnClickListener(this);
+        btnMore.setOnClickListener(this);
     }
+
     @Override
     public void onClick(View v){
-        switch (v.getId()){
-            case R.id.kind1:
-                Intent KindIntent1 = new Intent(this,kind_page1.class);
-                startActivity(KindIntent1);
-                break;
-            case R.id.kind2:
-                Intent KindIntent2 = new Intent(this,kind_page2.class);
-                startActivity(KindIntent2);
-                break;
-            case R.id.kind3:
-                Intent KindIntent3 = new Intent(this,kind_page3.class);
-                startActivity(KindIntent3);
-                break;
-            case R.id.kind4:
-                Intent KindIntent4 = new Intent(this,kind_page4.class);
-                startActivity(KindIntent4);
-                break;
-            case R.id.button_1:
-                Intent button1 = new Intent(main_page.this,main_page.class);
-                startActivity(button1);
-                break;
-            case R.id.button_2:
-                Intent button2 = new Intent(this,AddItem.class);
-                startActivity(button2);
-                break;
-            case R.id.button_3:
-                Intent button3 = new Intent(this,MyselfActivity.class);
-                startActivity(button3);
-                break;
+        int id = v.getId();
 
+        // 分类标签点击
+        if (id == R.id.tab_sports || id == R.id.kind1) {
+            Intent KindIntent1 = new Intent(this, kind_page1.class);
+            startActivity(KindIntent1);
+        } else if (id == R.id.tab_life || id == R.id.kind2) {
+            Intent KindIntent2 = new Intent(this, kind_page2.class);
+            startActivity(KindIntent2);
+        } else if (id == R.id.tab_digital || id == R.id.kind3) {
+            Intent KindIntent3 = new Intent(this, kind_page3.class);
+            startActivity(KindIntent3);
+        } else if (id == R.id.tab_study || id == R.id.kind4) {
+            Intent KindIntent4 = new Intent(this, kind_page4.class);
+            startActivity(KindIntent4);
+        } else if (id == R.id.tab_all) {
+            // 刷新当前页面显示全部商品
+            Intent button1 = new Intent(main_page.this, main_page.class);
+            startActivity(button1);
+            finish();
         }
+        // 底部导航栏点击
+        else if (id == R.id.button_1) {
+            // 已在首页，不需要操作
+        } else if (id == R.id.button_msg) {
+            // 消息页面 - 暂时提示
+            Toast.makeText(this, "消息功能开发中", Toast.LENGTH_SHORT).show();
+        } else if (id == R.id.button_3) {
+            Intent button3 = new Intent(this, MyselfActivity.class);
+            startActivity(button3);
+        } else if (id == R.id.button_more) {
+            Intent buttonMore = new Intent(this, AboutMainActivity.class);
+            startActivity(buttonMore);
+        }
+        // 发布闲置按钮
+        else if (id == R.id.fab_add) {
+            String userId = LoginMainActivity.post_userid;
+            if (userId == null || userId.equals("")) {
+                Toast.makeText(this, "请先登录！", Toast.LENGTH_SHORT).show();
+                Intent loginIntent = new Intent(this, LoginMainActivity.class);
+                startActivity(loginIntent);
+            } else {
+                Intent addIntent = new Intent(this, AddItem.class);
+                startActivity(addIntent);
+            }
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        // 在首页按返回键退出应用
+        moveTaskToBack(true);
     }
 }

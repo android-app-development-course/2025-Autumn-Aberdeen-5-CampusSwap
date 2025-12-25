@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="page.page1">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 
     <application
         android:allowBackup="true"
@@ -11,27 +12,28 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".LoginMainActivity">
+        <activity
+            android:name=".LoginMainActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".kind_page1" />
-        <activity android:name=".item_info" />
-        <activity android:name=".AboutMainActivity" />
-        <activity android:name=".changepwdActivity" />
-        <activity android:name=".main_page" />
-        <activity android:name=".MyselfActivity" />
-        <activity android:name=".RegisterMainActivity" />
-        <activity android:name=".setMymsgActivity" />
-        <activity android:name=".userMsgActivity" />
-        <activity android:name=".MyItems" />
-        <activity android:name=".AddItem" />
-        <activity android:name=".kind_page2" />
-        <activity android:name=".kind_page3" />
-        <activity android:name=".kind_page4"></activity>
+        <activity android:name=".kind_page1" android:exported="false" />
+        <activity android:name=".item_info" android:exported="false" />
+        <activity android:name=".AboutMainActivity" android:exported="false" />
+        <activity android:name=".changepwdActivity" android:exported="false" />
+        <activity android:name=".main_page" android:exported="false" />
+        <activity android:name=".MyselfActivity" android:exported="false" />
+        <activity android:name=".RegisterMainActivity" android:exported="false" />
+        <activity android:name=".setMymsgActivity" android:exported="false" />
+        <activity android:name=".userMsgActivity" android:exported="false" />
+        <activity android:name=".MyItems" android:exported="false" />
+        <activity android:name=".AddItem" android:exported="false" />
+        <activity android:name=".kind_page2" android:exported="false" />
+        <activity android:name=".kind_page3" android:exported="false" />
+        <activity android:name=".kind_page4" android:exported="false" />
     </application>
 
 </manifest>
