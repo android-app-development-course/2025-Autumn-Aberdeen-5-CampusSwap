@@ -9,7 +9,17 @@
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>
     <color name="background_gray">#F3F4F6</color>
+    <color name="app_background">#F3F4F6</color>
 
+    <color name="text_primary">#111827</color>
+    <color name="text_secondary">#6B7280</color>
+
+    <color name="success">#16A34A</color>
+    <color name="success_bg_light">#EAFBF0</color>
+
+    <color name="warn">#FBBF24</color>
+
+    <color name="divider">#F3F4F6</color>
     <!-- 辅助色 -->
     <color name="teal">#0EA5A4</color>
     <color name="success_green">#16A34A</color>
@@ -17,15 +27,10 @@
     <color name="error_red">#EF4444</color>
 
     <!-- 文字颜色 -->
-    <color name="text_primary">#333333</color>
-    <color name="text_secondary">#666666</color>
     <color name="text_hint">#999999</color>
 
     <!-- 价格颜色 -->
     <color name="price_orange">#FF7A24</color>
-
-    <!-- 分割线颜色 -->
-    <color name="divider">#EEEEEE</color>
 
     <!-- 底部导航栏 -->
     <color name="nav_selected">#FF7A24</color>

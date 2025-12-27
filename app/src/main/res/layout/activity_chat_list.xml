@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/background_gray">
+
+    <!-- 顶部标题栏 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@color/white"
+        android:gravity="center_vertical"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:elevation="2dp">
+
+        <ImageView
+            android:id="@+id/btn_back"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:padding="8dp"
+            android:src="@android:drawable/ic_menu_revert"
+            android:background="?attr/selectableItemBackgroundBorderless"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="消息"
+            android:textSize="18sp"
+            android:textColor="@color/text_primary"
+            android:textStyle="bold"
+            android:gravity="center"/>
+
+        <View
+            android:layout_width="40dp"
+            android:layout_height="40dp"/>
+    </LinearLayout>
+
+    <!-- 聊天列表 -->
+    <ListView
+        android:id="@+id/lv_chat_list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:divider="@color/divider"
+        android:dividerHeight="1dp"
+        android:background="@color/white"
+        android:layout_marginTop="8dp"/>
+
+    <!-- 空状态提示 -->
+    <LinearLayout
+        android:id="@+id/layout_empty"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:src="@android:drawable/ic_dialog_email"
+            android:alpha="0.3"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="暂无消息"
+            android:textSize="16sp"
+            android:textColor="@color/text_hint"
+            android:layout_marginTop="16dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="去商品详情页联系卖家吧"
+            android:textSize="14sp"
+            android:textColor="@color/text_hint"
+            android:layout_marginTop="8dp"/>
+    </LinearLayout>
+
+    <!-- 底部导航栏 -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/divider"/>
+
+    <RadioGroup
+        android:id="@+id/radioGroup"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="@color/white">
+
+        <RadioButton
+            android:id="@+id/button_1"
+            android:text="首页"
+            android:button="@null"
+            android:textSize="12sp"
+            android:textColor="@color/nav_unselected"
+            android:background="@color/white"
+            android:gravity="center"
+            android:layout_weight="1"
+            android:drawableTop="@android:drawable/ic_menu_compass"
+            android:drawablePadding="2dp"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"/>
+
+        <RadioButton
+            android:id="@+id/button_msg"
+            android:text="消息"
+            android:button="@null"
+            android:textSize="12sp"
+            android:textColor="@color/colorPrimary"
+            android:background="@color/white"
+            android:gravity="center"
+            android:layout_weight="1"
+            android:drawableTop="@android:drawable/ic_dialog_email"
+            android:drawablePadding="2dp"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:checked="true"/>
+
+        <RadioButton
+            android:id="@+id/button_3"
+            android:text="我的"
+            android:button="@null"
+            android:textSize="12sp"
+            android:textColor="@color/nav_unselected"
+            android:background="@color/white"
+            android:gravity="center"
+            android:layout_weight="1"
+            android:drawableTop="@android:drawable/ic_menu_myplaces"
+            android:drawablePadding="2dp"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"/>
+
+        <RadioButton
+            android:id="@+id/button_more"
+            android:text="更多"
+            android:button="@null"
+            android:textSize="12sp"
+            android:textColor="@color/nav_unselected"
+            android:background="@color/white"
+            android:gravity="center"
+            android:layout_weight="1"
+            android:drawableTop="@android:drawable/ic_menu_more"
+            android:drawablePadding="2dp"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"/>
+
+    </RadioGroup>
+</LinearLayout>
