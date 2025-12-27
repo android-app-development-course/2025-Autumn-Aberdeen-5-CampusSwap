@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class DatabaseHelper extends SQLiteOpenHelper{
     private static final String dbname="mydb";
-    private static final int DB_VERSION = 3; // 升级版本以添加商品状态字段
+    private static final int DB_VERSION = 4; // 升级版本以添加意见反馈表
 
     public DatabaseHelper(Context context) {
         super(context, dbname, null, DB_VERSION);
@@ -60,6 +60,16 @@ public class DatabaseHelper extends SQLiteOpenHelper{
                 "lastMessage varchar(500)," +
                 "lastTime DATETIME," +
                 "unreadCount integer default 0)");
+
+        //意见反馈表：反馈ID，用户ID，反馈类型，反馈内容，联系方式，提交时间，处理状态
+        db.execSQL("create table if not exists feedback(" +
+                "id integer primary key AUTOINCREMENT," +
+                "userId varchar(100)," +
+                "type varchar(50)," +
+                "content varchar(2000)," +
+                "contact varchar(100)," +
+                "time DATETIME," +
+                "status integer default 0)");
     }
 
     @Override
@@ -85,6 +95,17 @@ public class DatabaseHelper extends SQLiteOpenHelper{
         // 数据库升级：添加商品状态字段
         if (oldVersion < 3) {
             db.execSQL("ALTER TABLE iteminfo ADD COLUMN status integer default 0");
+        }
+        // 数据库升级：添加意见反馈表
+        if (oldVersion < 4) {
+            db.execSQL("create table if not exists feedback(" +
+                    "id integer primary key AUTOINCREMENT," +
+                    "userId varchar(100)," +
+                    "type varchar(50)," +
+                    "content varchar(2000)," +
+                    "contact varchar(100)," +
+                    "time DATETIME," +
+                    "status integer default 0)");
         }
     }
 }

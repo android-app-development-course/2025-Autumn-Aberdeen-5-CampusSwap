@@ -123,7 +123,7 @@ public class MyselfActivity extends AppCompatActivity {
         View menuFeedback = findViewById(R.id.menu_feedback);
         if (menuFeedback != null) {
             menuFeedback.setOnClickListener(v ->
-                    Toast.makeText(this, "反馈功能开发中...", Toast.LENGTH_SHORT).show());
+                    startActivity(new Intent(this, FeedbackActivity.class)));
         }
 
         // 关于我们
