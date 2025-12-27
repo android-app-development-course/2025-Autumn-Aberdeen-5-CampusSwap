@@ -30,6 +30,7 @@
         <activity android:name=".setMymsgActivity" android:exported="false" />
         <activity android:name=".userMsgActivity" android:exported="false" />
         <activity android:name=".MyItems" android:exported="false" />
+        <activity android:name=".MySoldItems" android:exported="false" />
         <activity android:name=".AddItem" android:exported="false" />
         <activity android:name=".kind_page2" android:exported="false" />
         <activity android:name=".kind_page3" android:exported="false" />

@@ -1,14 +1,14 @@
 package page.page1;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -25,6 +25,8 @@ import static page.page1.LoginMainActivity.post_userid;
 public class MyItems extends AppCompatActivity {
 
     private static final String TABLENAME = "iteminfo";
+    private SQLiteDatabase db;
+    private List<Map<String, Object>> data;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,20 +40,20 @@ public class MyItems extends AppCompatActivity {
         }
 
         DatabaseHelper database = new DatabaseHelper(this);
-        SQLiteDatabase db = database.getWritableDatabase();
+        db = database.getWritableDatabase();
 
         ListView listView = findViewById(R.id.show_fabu);
-        List<Map<String, Object>> data = new ArrayList<>();
+        data = new ArrayList<>();
 
-        // 只查当前用户
+        // 只查当前用户在售的商品 (status = 0 或 status IS NULL)
         Cursor cursor = db.query(
                 TABLENAME,
                 null,
-                "userid=?",
+                "userid=? AND (status=0 OR status IS NULL)",
                 new String[]{post_userid},
                 null,
                 null,
-                null
+                "time DESC"
         );
 
         if (cursor != null && cursor.moveToFirst()) {
@@ -108,22 +110,66 @@ public class MyItems extends AppCompatActivity {
             finish();
         });
 
-        // 刷新当前页面（正确方式）
+        // 刷新当前页面
         Button btnRefresh = findViewById(R.id.but2);
-        btnRefresh.setOnClickListener(v -> {
-            recreate();
-        });
+        btnRefresh.setOnClickListener(v -> recreate());
 
-        // 长按删除
+        // 长按弹出操作菜单
         listView.setOnItemLongClickListener((parent, view, position, id) -> {
-            String delId = data.get(position).get("id").toString();
-            int result = db.delete(TABLENAME, "id=?", new String[]{delId});
-            if (result > 0) {
-                Toast.makeText(this, "删除成功", Toast.LENGTH_SHORT).show();
-                recreate();
-                return true;
-            }
-            return false;
+            showItemOptionsDialog(position);
+            return true;
         });
+    }
+
+    private void showItemOptionsDialog(int position) {
+        String itemId = data.get(position).get("id").toString();
+        String title = data.get(position).get("title").toString();
+
+        new AlertDialog.Builder(this)
+                .setTitle(title)
+                .setItems(new String[]{"标记为已卖出", "删除商品"}, (dialog, which) -> {
+                    if (which == 0) {
+                        markAsSold(itemId);
+                    } else if (which == 1) {
+                        deleteItem(itemId);
+                    }
+                })
+                .show();
+    }
+
+    private void markAsSold(String itemId) {
+        new AlertDialog.Builder(this)
+                .setTitle("确认标记")
+                .setMessage("确定将此商品标记为已卖出吗？")
+                .setPositiveButton("确定", (dialog, which) -> {
+                    ContentValues values = new ContentValues();
+                    values.put("status", 1);
+                    int result = db.update(TABLENAME, values, "id=?", new String[]{itemId});
+                    if (result > 0) {
+                        Toast.makeText(this, "已标记为已卖出", Toast.LENGTH_SHORT).show();
+                        recreate();
+                    } else {
+                        Toast.makeText(this, "操作失败", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setNegativeButton("取消", null)
+                .show();
+    }
+
+    private void deleteItem(String itemId) {
+        new AlertDialog.Builder(this)
+                .setTitle("确认删除")
+                .setMessage("确定要删除此商品吗？此操作不可恢复。")
+                .setPositiveButton("删除", (dialog, which) -> {
+                    int result = db.delete(TABLENAME, "id=?", new String[]{itemId});
+                    if (result > 0) {
+                        Toast.makeText(this, "删除成功", Toast.LENGTH_SHORT).show();
+                        recreate();
+                    } else {
+                        Toast.makeText(this, "删除失败", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setNegativeButton("取消", null)
+                .show();
     }
 }

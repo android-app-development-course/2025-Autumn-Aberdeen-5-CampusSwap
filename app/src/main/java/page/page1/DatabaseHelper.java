@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class DatabaseHelper extends SQLiteOpenHelper{
     private static final String dbname="mydb";
-    private static final int DB_VERSION = 2; // 升级版本以添加消息表
+    private static final int DB_VERSION = 3; // 升级版本以添加商品状态字段
 
     public DatabaseHelper(Context context) {
         super(context, dbname, null, DB_VERSION);
@@ -24,7 +24,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
                 "phone varchar(15)," +
                 "qq varchar(15)," +
                 "address varchar(50))");
-        //商品编号id，发布者账号userId，标题title，类别kind，内容info，价格price，图片image
+        //商品编号id，发布者账号userId，标题title，类别kind，内容info，价格price，图片image，状态status(0在售,1已卖出)
         db.execSQL("create table if not exists iteminfo(" +
                 "id integer primary key  AUTOINCREMENT," +
                 "userId varchar(100)," +
@@ -34,7 +34,8 @@ public class DatabaseHelper extends SQLiteOpenHelper{
                 "price varchar(100)," +
                 "image blob," +
                 "time DATETIME," +
-                "contact varchar(50))");
+                "contact varchar(50)," +
+                "status integer default 0)");
         //评论者账号userId，评论商品编号itemId，评论内容comment，评论时间time
         db.execSQL("create table if not exists comments(" +
                 "userId varchar(100)," +
@@ -80,6 +81,10 @@ public class DatabaseHelper extends SQLiteOpenHelper{
                     "lastMessage varchar(500)," +
                     "lastTime DATETIME," +
                     "unreadCount integer default 0)");
+        }
+        // 数据库升级：添加商品状态字段
+        if (oldVersion < 3) {
+            db.execSQL("ALTER TABLE iteminfo ADD COLUMN status integer default 0");
         }
     }
 }

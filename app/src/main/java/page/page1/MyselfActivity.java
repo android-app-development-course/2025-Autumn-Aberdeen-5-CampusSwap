@@ -7,6 +7,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
@@ -17,7 +18,6 @@ public class MyselfActivity extends AppCompatActivity {
 
     private TextView tvName, tvSchoolInfo, btnEditProfile;
     private CardView cvAvatar;
-    private String currentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +27,17 @@ public class MyselfActivity extends AppCompatActivity {
         initView();
         setupMenuContent();
         setupListeners();
+        setupBackPressedCallback();
+    }
+
+    private void setupBackPressedCallback() {
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                startActivity(new Intent(MyselfActivity.this, main_page.class));
+                finish();
+            }
+        });
     }
 
     private void initView() {
@@ -76,7 +87,7 @@ public class MyselfActivity extends AppCompatActivity {
         // 编辑资料按钮
         if (btnEditProfile != null) {
             btnEditProfile.setOnClickListener(v -> {
-                if (!checkLoginOrGo()) return;
+                if (redirectToLoginIfNeeded()) return;
                 startActivity(new Intent(this, userMsgActivity.class));
             });
         }
@@ -85,7 +96,7 @@ public class MyselfActivity extends AppCompatActivity {
         View menuPublished = findViewById(R.id.menu_published);
         if (menuPublished != null) {
             menuPublished.setOnClickListener(v -> {
-                if (!checkLoginOrGo()) return;
+                if (redirectToLoginIfNeeded()) return;
                 startActivity(new Intent(this, MyItems.class));
             });
         }
@@ -94,8 +105,8 @@ public class MyselfActivity extends AppCompatActivity {
         View menuSold = findViewById(R.id.menu_sold);
         if (menuSold != null) {
             menuSold.setOnClickListener(v -> {
-                if (!checkLoginOrGo()) return;
-                Toast.makeText(this, "已卖出功能开发中...", Toast.LENGTH_SHORT).show();
+                if (redirectToLoginIfNeeded()) return;
+                startActivity(new Intent(this, MySoldItems.class));
             });
         }
 
@@ -103,7 +114,7 @@ public class MyselfActivity extends AppCompatActivity {
         View menuSettings = findViewById(R.id.menu_settings);
         if (menuSettings != null) {
             menuSettings.setOnClickListener(v -> {
-                if (!checkLoginOrGo()) return;
+                if (redirectToLoginIfNeeded()) return;
                 startActivity(new Intent(this, changepwdActivity.class));
             });
         }
@@ -111,17 +122,15 @@ public class MyselfActivity extends AppCompatActivity {
         // 意见反馈
         View menuFeedback = findViewById(R.id.menu_feedback);
         if (menuFeedback != null) {
-            menuFeedback.setOnClickListener(v -> {
-                Toast.makeText(this, "反馈功能开发中...", Toast.LENGTH_SHORT).show();
-            });
+            menuFeedback.setOnClickListener(v ->
+                    Toast.makeText(this, "反馈功能开发中...", Toast.LENGTH_SHORT).show());
         }
 
         // 关于我们
         View menuAbout = findViewById(R.id.menu_about);
         if (menuAbout != null) {
-            menuAbout.setOnClickListener(v -> {
-                startActivity(new Intent(this, AboutMainActivity.class));
-            });
+            menuAbout.setOnClickListener(v ->
+                    startActivity(new Intent(this, AboutMainActivity.class)));
         }
     }
 
@@ -135,13 +144,12 @@ public class MyselfActivity extends AppCompatActivity {
      * 刷新登录状态展示
      */
     private void refreshUserState() {
-        currentUser = post_userid;
         if (!isLogin()) {
             if (tvName != null) tvName.setText("点击登录");
             if (tvSchoolInfo != null) tvSchoolInfo.setText("登录后体验更多功能");
             if (btnEditProfile != null) btnEditProfile.setText("去登录");
         } else {
-            if (tvName != null) tvName.setText(currentUser);
+            if (tvName != null) tvName.setText(post_userid);
             if (tvSchoolInfo != null) tvSchoolInfo.setText("华南师范大学");
             if (btnEditProfile != null) btnEditProfile.setText("编辑");
         }
@@ -151,13 +159,17 @@ public class MyselfActivity extends AppCompatActivity {
         return post_userid != null && !post_userid.isEmpty();
     }
 
-    private boolean checkLoginOrGo() {
+    /**
+     * 如果未登录则跳转到登录页面
+     * @return true 表示未登录并已跳转，false 表示已登录
+     */
+    private boolean redirectToLoginIfNeeded() {
         if (!isLogin()) {
             Toast.makeText(this, "请先登录", Toast.LENGTH_SHORT).show();
             startActivity(new Intent(this, LoginMainActivity.class));
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
 
     private void showUserDetailDialog() {
@@ -177,13 +189,5 @@ public class MyselfActivity extends AppCompatActivity {
         post_userid = "";
         Toast.makeText(this, "已退出登录", Toast.LENGTH_SHORT).show();
         refreshUserState();
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        // 返回首页
-        startActivity(new Intent(MyselfActivity.this, main_page.class));
-        finish();
     }
 }
