@@ -1,233 +1,168 @@
 package page.page1;
 
 import android.content.Intent;
-import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
+
+// 假设你的登录状态保存在这个全局变量中
+import static page.page1.LoginMainActivity.post_userid;
+
 public class MyselfActivity extends AppCompatActivity {
 
-    private RadioButton button1;
-    private RadioButton buttonMsg;
-    private RadioButton button3;
-    private RadioButton buttonMore;
-    private Button myself;
-    private Button myshow;
-    private Button changepwd;
-    private Button about;
-    private Button login;
-    private TextView myId;
-    protected Intent intent;
-    private String a;
+    private TextView tvName, tvSchoolInfo, btnEditProfile;
+    private CardView cvAvatar;
+    private String currentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_myself);
 
-        // 返回按钮
-        ImageView btnBack = (ImageView) findViewById(R.id.btn_back);
-        btnBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
+        initView();
+        setupMenuContent();
+        setupListeners();
+    }
 
-        // 底部导航栏
-        button1 = (RadioButton) findViewById(R.id.button_1);
-        buttonMsg = (RadioButton) findViewById(R.id.button_msg);
-        button3 = (RadioButton) findViewById(R.id.button_3);
-        buttonMore = (RadioButton) findViewById(R.id.button_more);
+    private void initView() {
+        // 头部
+        ImageView btnBack = findViewById(R.id.btn_back);
+        if (btnBack != null) btnBack.setOnClickListener(v -> finish());
 
-        // 功能按钮
-        myself = (Button) findViewById(R.id.myself);
-        myshow = (Button) findViewById(R.id.myShow);
-        changepwd = (Button) findViewById(R.id.changepwd);
-        about = (Button) findViewById(R.id.about);
-        login = (Button) findViewById(R.id.login);
-        myId = (TextView) findViewById(R.id.myId);
+        tvName = findViewById(R.id.tv_name);
+        tvSchoolInfo = findViewById(R.id.tv_school_info);
+        btnEditProfile = findViewById(R.id.btn_edit_profile);
+        cvAvatar = findViewById(R.id.cv_avatar);
+    }
 
-        // 新布局的点击区域
-        LinearLayout layoutMyPublish = (LinearLayout) findViewById(R.id.layout_my_publish);
-        LinearLayout layoutSettings = (LinearLayout) findViewById(R.id.layout_settings);
-        LinearLayout layoutAbout = (LinearLayout) findViewById(R.id.layout_about);
+    /**
+     * 初始化菜单行的文字和图标（因为include共用一个布局，必须在后端指定）
+     */
+    private void setupMenuContent() {
+        // 使用之前定义的辅助方法
+        setupMenuRow(findViewById(R.id.menu_published), android.R.drawable.ic_menu_send, "我发布的");
+        setupMenuRow(findViewById(R.id.menu_sold), android.R.drawable.ic_menu_agenda, "已卖出");
+        setupMenuRow(findViewById(R.id.menu_settings), android.R.drawable.ic_menu_manage, "账号设置");
+        setupMenuRow(findViewById(R.id.menu_feedback), android.R.drawable.ic_menu_help, "意见反馈");
+        setupMenuRow(findViewById(R.id.menu_about), android.R.drawable.ic_menu_info_details, "关于我们");
+    }
 
-        a = LoginMainActivity.post_userid;
-        if (a == null || a.equals("")) {
-            myId.setText("未登录");
-            login.setText("登录");
-        } else {
-            myId.setText(a);
-            login.setText("退出登录");
+    private void setupMenuRow(View menuRow, int iconRes, String title) {
+        if (menuRow != null) {
+            ImageView icon = menuRow.findViewById(R.id.item_icon);
+            TextView text = menuRow.findViewById(R.id.item_text);
+            if (icon != null) icon.setImageResource(iconRes);
+            if (text != null) text.setText(title);
         }
+    }
 
-        Log.i("123", a != null ? a : "null");
-
-        // 跳转到主页
-        button1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                intent = new Intent(MyselfActivity.this, main_page.class);
-                startActivity(intent);
-                finish();
+    private void setupListeners() {
+        // 1. 登录/头像点击逻辑
+        View.OnClickListener loginClick = v -> {
+            if (isLogin()) {
+                showUserDetailDialog(); // 已登录看详情或换头像
+            } else {
+                startActivity(new Intent(this, LoginMainActivity.class));
             }
+        };
+        tvName.setOnClickListener(loginClick);
+        cvAvatar.setOnClickListener(loginClick);
+
+        // 2. 编辑资料按钮
+        btnEditProfile.setOnClickListener(v -> {
+            if (!checkLoginOrGo()) return;
+            startActivity(new Intent(this, changepwdActivity.class));
         });
 
-        // 消息页面
-        buttonMsg.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), "消息功能开发中", Toast.LENGTH_SHORT).show();
-            }
+        // 3. 统计项点击 (发布中/已卖出/收藏)
+        // 提示：你可以通过 Intent 传参告诉目标 Activity 显示哪个 Tab
+        findViewById(R.id.menu_published).setOnClickListener(v -> {
+            if (!checkLoginOrGo()) return;
+            startActivity(new Intent(this, MyItems.class).putExtra("type", "published"));
         });
 
-        // 我的页面（当前页面）
-        button3.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // 已在当前页面
-            }
+        findViewById(R.id.menu_sold).setOnClickListener(v -> {
+            if (!checkLoginOrGo()) return;
+            startActivity(new Intent(this, MyItems.class).putExtra("type", "sold"));
         });
 
-        // 更多页面
-        buttonMore.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                intent = new Intent(MyselfActivity.this, AboutMainActivity.class);
-                startActivity(intent);
-            }
+        // 4. 下方功能列表
+        findViewById(R.id.menu_settings).setOnClickListener(v -> {
+            if (!checkLoginOrGo()) return;
+            startActivity(new Intent(this, changepwdActivity.class));
         });
 
-        // 跳转到个人信息页面 (编辑按钮)
-        myself.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (a == null || a.equals("")) {
-                    Toast.makeText(getApplicationContext(), "请先登录！", Toast.LENGTH_SHORT).show();
-                    intent = new Intent(MyselfActivity.this, LoginMainActivity.class);
-                    startActivity(intent);
-                    return;
-                }
-                Log.i("123", "111111111");
-                intent = new Intent(MyselfActivity.this, userMsgActivity.class);
-                startActivity(intent);
-            }
+        findViewById(R.id.menu_feedback).setOnClickListener(v -> {
+            Toast.makeText(this, "反馈功能开发中...", Toast.LENGTH_SHORT).show();
         });
 
-        // 我发布的 (新布局点击区域)
-        if (layoutMyPublish != null) {
-            layoutMyPublish.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (a == null || a.equals("")) {
-                        Toast.makeText(getApplicationContext(), "请先登录！", Toast.LENGTH_SHORT).show();
-                        intent = new Intent(MyselfActivity.this, LoginMainActivity.class);
-                        startActivity(intent);
-                    } else {
-                        intent = new Intent(MyselfActivity.this, MyItems.class);
-                        startActivity(intent);
-                    }
-                }
-            });
-        }
-
-        // 跳转到个人发布页面 (兼容旧按钮)
-        myshow.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (a == null || a.equals("")) {
-                    Toast.makeText(getApplicationContext(), "请先登录！", Toast.LENGTH_SHORT).show();
-                    intent = new Intent(MyselfActivity.this, LoginMainActivity.class);
-                    startActivity(intent);
-                } else {
-                    intent = new Intent(MyselfActivity.this, MyItems.class);
-                    startActivity(intent);
-                }
-            }
-        });
-
-        // 账号设置 (新布局点击区域)
-        if (layoutSettings != null) {
-            layoutSettings.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (a == null || a.equals("")) {
-                        Toast.makeText(getApplicationContext(), "请先登录！", Toast.LENGTH_SHORT).show();
-                        intent = new Intent(MyselfActivity.this, LoginMainActivity.class);
-                        startActivity(intent);
-                    } else {
-                        intent = new Intent(MyselfActivity.this, changepwdActivity.class);
-                        startActivity(intent);
-                    }
-                }
-            });
-        }
-
-        // 跳转到修改密码页面 (兼容旧按钮)
-        changepwd.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (a == null || a.equals("")) {
-                    Toast.makeText(getApplicationContext(), "请先登录！", Toast.LENGTH_SHORT).show();
-                    intent = new Intent(MyselfActivity.this, LoginMainActivity.class);
-                    startActivity(intent);
-                }
-                intent = new Intent(MyselfActivity.this, changepwdActivity.class);
-                startActivity(intent);
-            }
-        });
-
-        // 关于校园圈 (新布局点击区域)
-        if (layoutAbout != null) {
-            layoutAbout.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    intent = new Intent(MyselfActivity.this, AboutMainActivity.class);
-                    startActivity(intent);
-                }
-            });
-        }
-
-        // 跳转到关于页面 (兼容旧按钮)
-        about.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                intent = new Intent(MyselfActivity.this, AboutMainActivity.class);
-                startActivity(intent);
-            }
-        });
-
-        // 登录/退出登录按钮
-        login.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (a == null || a.equals("")) {
-                    intent = new Intent(MyselfActivity.this, LoginMainActivity.class);
-                    startActivity(intent);
-                } else {
-                    Toast.makeText(getApplicationContext(), "退出成功", Toast.LENGTH_SHORT).show();
-                    LoginMainActivity.post_userid = "";
-                    intent = new Intent(MyselfActivity.this, LoginMainActivity.class);
-                    startActivity(intent);
-                    finish();
-                }
-            }
+        findViewById(R.id.menu_about).setOnClickListener(v -> {
+            startActivity(new Intent(this, AboutMainActivity.class));
         });
     }
 
     @Override
-    public void onBackPressed() {
-        // 返回首页
-        intent = new Intent(MyselfActivity.this, main_page.class);
-        startActivity(intent);
-        finish();
+    protected void onResume() {
+        super.onResume();
+        refreshUserState();
+        loadUserStats(); // 每次返回刷新数字（发布数/收藏数）
+    }
+
+    /**
+     * 刷新登录状态展示
+     */
+    private void refreshUserState() {
+        currentUser = post_userid;
+        if (!isLogin()) {
+            tvName.setText("点击登录");
+            tvSchoolInfo.setText("登录后体验更多功能");
+            btnEditProfile.setText("去登录");
+        } else {
+            tvName.setText(currentUser);
+            tvSchoolInfo.setText("4.9 · 华南师范大学"); // 实际应从数据库读取
+            btnEditProfile.setText("编辑资料");
+        }
+    }
+
+    /**
+     * 模拟加载统计数据（实际应通过 OkHttp/Retrofit 从服务器请求）
+     */
+    private void loadUserStats() {
+        // 这里只是示例，实际你应该去数据库 count(*)
+        // 然后 findViewById(R.id.xxx).setText(String.valueOf(count));
+    }
+
+    private boolean isLogin() {
+        return post_userid != null && !post_userid.isEmpty();
+    }
+
+    private boolean checkLoginOrGo() {
+        if (!isLogin()) {
+            Toast.makeText(this, "请先登录", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(this, LoginMainActivity.class));
+            return false;
+        }
+        return true;
+    }
+
+    private void showUserDetailDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("账号管理")
+                .setItems(new String[]{"查看大图", "退出登录"}, (dialog, which) -> {
+                    if (which == 1) performLogout();
+                })
+                .show();
+    }
+
+    private void performLogout() {
+        post_userid = ""; // 清空全局变量
+        Toast.makeText(this, "已退出登录", Toast.LENGTH_SHORT).show();
+        refreshUserState();
     }
 }
