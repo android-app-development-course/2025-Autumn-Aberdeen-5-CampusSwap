@@ -7,8 +7,10 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class DatabaseHelper extends SQLiteOpenHelper{
     private static final String dbname="mydb";
+    private static final int DB_VERSION = 2; // 升级版本以添加消息表
+
     public DatabaseHelper(Context context) {
-        super(context, dbname, null, 1);
+        super(context, dbname, null, DB_VERSION);
     }
 
     @Override
@@ -39,11 +41,46 @@ public class DatabaseHelper extends SQLiteOpenHelper{
                 "itemId integer," +
                 "comment varchar(1000)," +
                 "time DATETIME)");
+
+        //聊天消息表：消息ID，发送者ID，接收者ID，消息内容，发送时间，是否已读
+        db.execSQL("create table if not exists messages(" +
+                "id integer primary key AUTOINCREMENT," +
+                "senderId varchar(100)," +
+                "receiverId varchar(100)," +
+                "content varchar(2000)," +
+                "time DATETIME," +
+                "isRead integer default 0)");
+
+        //会话表：用于快速查询聊天列表
+        db.execSQL("create table if not exists conversations(" +
+                "id integer primary key AUTOINCREMENT," +
+                "userId1 varchar(100)," +
+                "userId2 varchar(100)," +
+                "lastMessage varchar(500)," +
+                "lastTime DATETIME," +
+                "unreadCount integer default 0)");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        // 数据库升级：添加消息和会话表
+        if (oldVersion < 2) {
+            db.execSQL("create table if not exists messages(" +
+                    "id integer primary key AUTOINCREMENT," +
+                    "senderId varchar(100)," +
+                    "receiverId varchar(100)," +
+                    "content varchar(2000)," +
+                    "time DATETIME," +
+                    "isRead integer default 0)");
 
+            db.execSQL("create table if not exists conversations(" +
+                    "id integer primary key AUTOINCREMENT," +
+                    "userId1 varchar(100)," +
+                    "userId2 varchar(100)," +
+                    "lastMessage varchar(500)," +
+                    "lastTime DATETIME," +
+                    "unreadCount integer default 0)");
+        }
     }
 }
 

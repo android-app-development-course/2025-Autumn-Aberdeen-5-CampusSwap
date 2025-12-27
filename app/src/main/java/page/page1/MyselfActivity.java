@@ -225,6 +225,7 @@ public class MyselfActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+        super.onBackPressed();
         // 返回首页
         intent = new Intent(MyselfActivity.this, main_page.class);
         startActivity(intent);

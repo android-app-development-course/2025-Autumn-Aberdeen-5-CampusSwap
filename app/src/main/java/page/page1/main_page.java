@@ -170,7 +170,14 @@ public class main_page extends AppCompatActivity implements View.OnClickListener
             recreate(); // 刷新页面
         }
         else if (id == R.id.button_msg) {
-            Toast.makeText(this, "消息功能开发中", Toast.LENGTH_SHORT).show();
+            // 跳转到聊天列表页面
+            String userId = LoginMainActivity.post_userid;
+            if (userId == null || userId.isEmpty()) {
+                Toast.makeText(this, "请先登录！", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(this, LoginMainActivity.class));
+            } else {
+                startActivity(new Intent(this, ChatListActivity.class));
+            }
         } else if (id == R.id.button_3) {
             startActivity(new Intent(this, MyselfActivity.class));
         } else if (id == R.id.button_more) {

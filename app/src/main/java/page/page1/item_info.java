@@ -33,6 +33,7 @@ public class item_info extends AppCompatActivity {
     byte[] imagedata;
     Bitmap imagebm;
     private String contactInfo;
+    private String sellerUserId; // 卖家用户ID
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,6 +88,7 @@ public class item_info extends AppCompatActivity {
                 title.setText(cursor.getString(2));
                 price.setText("¥" + cursor.getString(5));
                 info.setText(cursor.getString(4));
+                sellerUserId = cursor.getString(1); // 获取卖家用户ID
                 contactInfo = (cursor.getColumnCount() > 8) ? cursor.getString(8) : "暂无联系方式";
                 contact.setText(contactInfo);
 
@@ -158,11 +160,29 @@ public class item_info extends AppCompatActivity {
         btnChat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (contactInfo != null && !contactInfo.isEmpty()) {
-                    Toast.makeText(getApplicationContext(), "卖家联系方式: " + contactInfo, Toast.LENGTH_LONG).show();
-                } else {
-                    Toast.makeText(getApplicationContext(), "暂无卖家联系方式", Toast.LENGTH_SHORT).show();
+                // 检查是否登录
+                if (post_userid == null || post_userid.isEmpty()) {
+                    Toast.makeText(getApplicationContext(), "请先登录！", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(item_info.this, LoginMainActivity.class));
+                    return;
                 }
+
+                // 检查是否是自己的商品
+                if (sellerUserId != null && sellerUserId.equals(post_userid)) {
+                    Toast.makeText(getApplicationContext(), "这是您自己发布的商品", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                // 检查卖家ID是否有效
+                if (sellerUserId == null || sellerUserId.isEmpty()) {
+                    Toast.makeText(getApplicationContext(), "无法获取卖家信息", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                // 跳转到聊天页面
+                Intent chatIntent = new Intent(item_info.this, ChatActivity.class);
+                chatIntent.putExtra("otherUserId", sellerUserId);
+                startActivity(chatIntent);
             }
         });
     }
