@@ -152,10 +152,4 @@ public class kind_page1 extends AppCompatActivity {
             }
         });
     }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        finish();
-    }
 }

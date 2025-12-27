@@ -33,9 +33,13 @@
             android:textStyle="bold"
             android:gravity="center"/>
 
-        <View
+        <ImageView
+            android:id="@+id/btn_favorite"
             android:layout_width="50dp"
-            android:layout_height="50dp"/>
+            android:layout_height="50dp"
+            android:padding="12dp"
+            android:src="@android:drawable/btn_star_big_off"
+            android:background="?attr/selectableItemBackgroundBorderless"/>
     </LinearLayout>
 
     <ScrollView

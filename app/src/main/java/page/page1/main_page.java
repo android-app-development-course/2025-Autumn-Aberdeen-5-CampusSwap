@@ -1,5 +1,7 @@
 package page.page1;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.activity.OnBackPressedCallback;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -7,8 +9,10 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
@@ -26,93 +30,37 @@ public class main_page extends AppCompatActivity implements View.OnClickListener
     Intent intent;
     byte[] imagedata;
     Bitmap imagebm;
+    ListView listView;
+    List<Map<String, Object>> data;
+    SimpleAdapter simpleAdapter;
+    String searchKeyword = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main_page); // 确保这里对应的是包含ListView的布局文件名
+        setContentView(R.layout.main_page);
 
-        DatabaseHelper database = new DatabaseHelper(this);
-        // 使用 getReadableDatabase 防止权限问题
-        final SQLiteDatabase db = database.getReadableDatabase();
-        ListView listView = (ListView) findViewById(R.id.listView);
+        listView = findViewById(R.id.listView);
 
-        final List<Map<String, Object>> data = new ArrayList<>();
-
-        // 查询数据库
-        Cursor cursor = db.query(TABLENAME, null, null, null, null, null, null);
-
-        // --- 核心修复区域 开始 ---
-        if (cursor != null && cursor.moveToFirst()) {
-            while (!cursor.isAfterLast()) {
-                Map<String, Object> item = new HashMap<>();
-                item.put("id", cursor.getInt(0));
-                item.put("userid", cursor.getString(1));
-                item.put("title", cursor.getString(2));
-                item.put("kind", cursor.getString(3));
-                item.put("info", cursor.getString(4));
-                item.put("price", cursor.getString(5));
-
-                // 获取图片二进制数据
-                imagedata = cursor.getBlob(6);
-
-                // !!!!!!!!!!!! 这里的判断是解决闪退的关键 !!!!!!!!!!!!
-                if (imagedata != null && imagedata.length > 0) {
-                    try {
-                        imagebm = BitmapFactory.decodeByteArray(imagedata, 0, imagedata.length);
-                        item.put("image", imagebm);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        item.put("image", null); // 解码失败也设为 null
-                    }
-                } else {
-                    item.put("image", null); // 如果数据库里是 null，这里也存 null
-                }
-
-                data.add(item);
-                cursor.moveToNext();
-            }
-            cursor.close(); // 记得关闭 cursor
-        }
-        db.close();
-        // --- 核心修复区域 结束 ---
-
-        // 适配器配置
-        SimpleAdapter simpleAdapter = new SimpleAdapter(this, data,
-                R.layout.listitem, // 确保这里是你刚才新建的卡片式布局文件名
-                new String[]{"image", "title", "kind", "info", "price"},
-                new int[]{R.id.item_image, R.id.title, R.id.kind, R.id.info, R.id.price});
-
-        // ViewBinder 处理图片显示逻辑
-        simpleAdapter.setViewBinder(new SimpleAdapter.ViewBinder() {
-            @Override
-            public boolean setViewValue(View view, Object data, String textRepresentation) {
-                if (view instanceof ImageView) {
-                    ImageView iv = (ImageView) view;
-                    if (data instanceof Bitmap) {
-                        // 如果有图片，显示图片
-                        iv.setImageBitmap((Bitmap) data);
-                    } else {
-                        // 如果数据是 null（没有图片），显示默认图标，防止报错
-                        iv.setImageResource(android.R.drawable.ic_menu_gallery);
-                        iv.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-                    }
-                    return true;
-                }
-                return false;
-            }
-        });
-
-        listView.setAdapter(simpleAdapter);
+        // 加载数据
+        loadItemData();
 
         // 初始化点击事件
         initClickEvents();
+
+        // 设置返回键处理
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                // 返回键不退出应用，而是后台运行
+                moveTaskToBack(true);
+            }
+        });
 
         // 列表点击跳转详情
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                // 增加安全性判断
                 if (data.size() > position) {
                     intent = new Intent(main_page.this, item_info.class);
                     Object itemId = data.get(position).get("id");
@@ -123,8 +71,86 @@ public class main_page extends AppCompatActivity implements View.OnClickListener
         });
     }
 
+    // 加载商品数据
+    private void loadItemData() {
+        DatabaseHelper database = new DatabaseHelper(this);
+        SQLiteDatabase db = database.getReadableDatabase();
+
+        data = new ArrayList<>();
+
+        // 构建查询条件
+        String selection = "status = ?";
+        String[] selectionArgs = new String[]{"0"};
+
+        if (!TextUtils.isEmpty(searchKeyword)) {
+            selection = "status = ? AND (title LIKE ? OR info LIKE ?)";
+            selectionArgs = new String[]{"0", "%" + searchKeyword + "%", "%" + searchKeyword + "%"};
+        }
+
+        Cursor cursor = db.query(TABLENAME, null, selection, selectionArgs, null, null, "time DESC");
+
+        if (cursor != null && cursor.moveToFirst()) {
+            while (!cursor.isAfterLast()) {
+                Map<String, Object> item = new HashMap<>();
+                item.put("id", cursor.getInt(0));
+                item.put("userid", cursor.getString(1));
+                item.put("title", cursor.getString(2));
+                item.put("kind", cursor.getString(3));
+                item.put("info", cursor.getString(4));
+                item.put("price", cursor.getString(5));
+
+                imagedata = cursor.getBlob(6);
+
+                if (imagedata != null && imagedata.length > 0) {
+                    try {
+                        imagebm = BitmapFactory.decodeByteArray(imagedata, 0, imagedata.length);
+                        item.put("image", imagebm);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        item.put("image", null);
+                    }
+                } else {
+                    item.put("image", null);
+                }
+
+                data.add(item);
+                cursor.moveToNext();
+            }
+            cursor.close();
+        }
+        db.close();
+
+        // 设置适配器
+        simpleAdapter = new SimpleAdapter(this, data,
+                R.layout.listitem,
+                new String[]{"image", "title", "kind", "info", "price"},
+                new int[]{R.id.item_image, R.id.title, R.id.kind, R.id.info, R.id.price});
+
+        simpleAdapter.setViewBinder(new SimpleAdapter.ViewBinder() {
+            @Override
+            public boolean setViewValue(View view, Object data, String textRepresentation) {
+                if (view instanceof ImageView) {
+                    ImageView iv = (ImageView) view;
+                    if (data instanceof Bitmap) {
+                        iv.setImageBitmap((Bitmap) data);
+                    } else {
+                        iv.setImageResource(android.R.drawable.ic_menu_gallery);
+                        iv.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+                    }
+                    return true;
+                }
+                return false;
+            }
+        });
+
+        listView.setAdapter(simpleAdapter);
+    }
+
     // 将点击事件封装，保持代码整洁
     private void initClickEvents() {
+        // 搜索图标
+        setClick(R.id.iv_search);
+
         // 分类标签
         setClick(R.id.tab_all);
         setClick(R.id.tab_sports);
@@ -158,7 +184,9 @@ public class main_page extends AppCompatActivity implements View.OnClickListener
     public void onClick(View v) {
         int id = v.getId();
 
-        if (id == R.id.tab_sports || id == R.id.kind1) {
+        if (id == R.id.iv_search) {
+            showSearchDialog();
+        } else if (id == R.id.tab_sports || id == R.id.kind1) {
             startActivity(new Intent(this, kind_page1.class));
         } else if (id == R.id.tab_life || id == R.id.kind2) {
             startActivity(new Intent(this, kind_page2.class));
@@ -167,7 +195,8 @@ public class main_page extends AppCompatActivity implements View.OnClickListener
         } else if (id == R.id.tab_study || id == R.id.kind4) {
             startActivity(new Intent(this, kind_page4.class));
         } else if (id == R.id.tab_all) {
-            recreate(); // 刷新页面
+            searchKeyword = null; // 清除搜索关键词
+            loadItemData(); // 重新加载所有数据
         }
         else if (id == R.id.button_msg) {
             // 跳转到聊天列表页面
@@ -194,9 +223,39 @@ public class main_page extends AppCompatActivity implements View.OnClickListener
         }
     }
 
-    @Override
-    public void onBackPressed() {
-        // 返回键不退出应用，而是后台运行
-        moveTaskToBack(true);
+    // 显示搜索对话框
+    private void showSearchDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("搜索商品");
+
+        final EditText input = new EditText(this);
+        input.setHint("请输入商品名称或描述");
+        input.setPadding(50, 30, 50, 30);
+        builder.setView(input);
+
+        builder.setPositiveButton("搜索", (dialog, which) -> {
+            searchKeyword = input.getText().toString().trim();
+            if (TextUtils.isEmpty(searchKeyword)) {
+                Toast.makeText(this, "请输入搜索关键词", Toast.LENGTH_SHORT).show();
+                searchKeyword = null;
+            } else {
+                loadItemData();
+                if (data.isEmpty()) {
+                    Toast.makeText(this, "没有找到相关商品", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "找到 " + data.size() + " 件商品", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        builder.setNegativeButton("取消", (dialog, which) -> dialog.cancel());
+
+        builder.setNeutralButton("清除搜索", (dialog, which) -> {
+            searchKeyword = null;
+            loadItemData();
+            Toast.makeText(this, "已显示全部商品", Toast.LENGTH_SHORT).show();
+        });
+
+        builder.show();
     }
 }

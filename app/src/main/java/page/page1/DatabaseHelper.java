@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class DatabaseHelper extends SQLiteOpenHelper{
     private static final String dbname="mydb";
-    private static final int DB_VERSION = 4; // 升级版本以添加意见反馈表
+    private static final int DB_VERSION = 5; // 升级版本以添加收藏表
 
     public DatabaseHelper(Context context) {
         super(context, dbname, null, DB_VERSION);
@@ -70,6 +70,14 @@ public class DatabaseHelper extends SQLiteOpenHelper{
                 "contact varchar(100)," +
                 "time DATETIME," +
                 "status integer default 0)");
+
+        //收藏表：收藏ID，用户ID，商品ID，收藏时间
+        db.execSQL("create table if not exists favorites(" +
+                "id integer primary key AUTOINCREMENT," +
+                "userId varchar(100)," +
+                "itemId integer," +
+                "time DATETIME," +
+                "UNIQUE(userId, itemId))");
     }
 
     @Override
@@ -106,6 +114,15 @@ public class DatabaseHelper extends SQLiteOpenHelper{
                     "contact varchar(100)," +
                     "time DATETIME," +
                     "status integer default 0)");
+        }
+        // 数据库升级：添加收藏表
+        if (oldVersion < 5) {
+            db.execSQL("create table if not exists favorites(" +
+                    "id integer primary key AUTOINCREMENT," +
+                    "userId varchar(100)," +
+                    "itemId integer," +
+                    "time DATETIME," +
+                    "UNIQUE(userId, itemId))");
         }
     }
 }

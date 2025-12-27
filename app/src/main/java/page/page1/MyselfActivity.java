@@ -58,6 +58,7 @@ public class MyselfActivity extends AppCompatActivity {
     private void setupMenuContent() {
         setupMenuRow(findViewById(R.id.menu_published), android.R.drawable.ic_menu_send, "我发布的");
         setupMenuRow(findViewById(R.id.menu_sold), android.R.drawable.ic_menu_agenda, "已卖出");
+        setupMenuRow(findViewById(R.id.menu_favorites), android.R.drawable.btn_star_big_on, "我的收藏");
         setupMenuRow(findViewById(R.id.menu_settings), android.R.drawable.ic_menu_manage, "账号设置");
         setupMenuRow(findViewById(R.id.menu_feedback), android.R.drawable.ic_menu_help, "意见反馈");
         setupMenuRow(findViewById(R.id.menu_about), android.R.drawable.ic_menu_info_details, "关于我们");
@@ -107,6 +108,15 @@ public class MyselfActivity extends AppCompatActivity {
             menuSold.setOnClickListener(v -> {
                 if (redirectToLoginIfNeeded()) return;
                 startActivity(new Intent(this, MySoldItems.class));
+            });
+        }
+
+        // 我的收藏
+        View menuFavorites = findViewById(R.id.menu_favorites);
+        if (menuFavorites != null) {
+            menuFavorites.setOnClickListener(v -> {
+                if (redirectToLoginIfNeeded()) return;
+                startActivity(new Intent(this, FavoritesActivity.class));
             });
         }
 

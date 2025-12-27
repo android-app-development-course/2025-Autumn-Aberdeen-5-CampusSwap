@@ -34,6 +34,9 @@ public class item_info extends AppCompatActivity {
     Bitmap imagebm;
     private String contactInfo;
     private String sellerUserId; // 卖家用户ID
+    private ImageView btnFavorite;
+    private boolean isFavorited = false;
+    private String currentItemId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,10 +46,12 @@ public class item_info extends AppCompatActivity {
         final DatabaseHelper dbtest = new DatabaseHelper(this);
         final Intent intent = getIntent();
         final String itemId = intent.getStringExtra("id");
+        currentItemId = itemId;
         final SQLiteDatabase db = dbtest.getWritableDatabase();
 
         // 1. 初始化控件
         ImageView btnBack = (ImageView) findViewById(R.id.btn_back);
+        btnFavorite = (ImageView) findViewById(R.id.btn_favorite);
         ImageView image = (ImageView) findViewById(R.id.imageView);
         TextView price = (TextView) findViewById(R.id.item_price);
         TextView title = (TextView) findViewById(R.id.item_title);
@@ -95,6 +100,9 @@ public class item_info extends AppCompatActivity {
                 cursor.close();
             }
         }
+
+        // 检查是否已收藏
+        checkFavoriteStatus(db);
 
         // 3. 加载评论列表
         final List<Map<String, Object>> data = new ArrayList<>();
@@ -185,11 +193,102 @@ public class item_info extends AppCompatActivity {
                 startActivity(chatIntent);
             }
         });
+
+        // 6. 收藏按钮点击事件
+        btnFavorite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 检查是否登录
+                if (post_userid == null || post_userid.isEmpty()) {
+                    Toast.makeText(getApplicationContext(), "请先登录！", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(item_info.this, LoginMainActivity.class));
+                    return;
+                }
+
+                if (isFavorited) {
+                    // 取消收藏
+                    removeFavorite(db);
+                } else {
+                    // 添加收藏
+                    addFavorite(db);
+                }
+            }
+        });
+    }
+
+    // 检查收藏状态
+    private void checkFavoriteStatus(SQLiteDatabase db) {
+        if (post_userid == null || post_userid.isEmpty() || currentItemId == null) {
+            return;
+        }
+
+        Cursor cursor = db.query("favorites", null,
+                "userId=? AND itemId=?",
+                new String[]{post_userid, currentItemId},
+                null, null, null);
+
+        isFavorited = (cursor != null && cursor.getCount() > 0);
+
+        if (cursor != null) {
+            cursor.close();
+        }
+
+        updateFavoriteIcon();
+    }
+
+    // 更新收藏图标
+    private void updateFavoriteIcon() {
+        if (btnFavorite != null) {
+            if (isFavorited) {
+                btnFavorite.setImageResource(android.R.drawable.btn_star_big_on);
+            } else {
+                btnFavorite.setImageResource(android.R.drawable.btn_star_big_off);
+            }
+        }
+    }
+
+    // 添加收藏
+    private void addFavorite(SQLiteDatabase db) {
+        String time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
+
+        ContentValues values = new ContentValues();
+        values.put("userId", post_userid);
+        values.put("itemId", currentItemId);
+        values.put("time", time);
+
+        try {
+            long result = db.insert("favorites", null, values);
+            if (result != -1) {
+                isFavorited = true;
+                updateFavoriteIcon();
+                Toast.makeText(this, "收藏成功", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "收藏失败", Toast.LENGTH_SHORT).show();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "已收藏过该商品", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    // 取消收藏
+    private void removeFavorite(SQLiteDatabase db) {
+        int result = db.delete("favorites",
+                "userId=? AND itemId=?",
+                new String[]{post_userid, currentItemId});
+
+        if (result > 0) {
+            isFavorited = false;
+            updateFavoriteIcon();
+            Toast.makeText(this, "已取消收藏", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "取消收藏失败", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        finish();
+    protected void onDestroy() {
+        super.onDestroy();
+        // 清理资源
     }
 }
